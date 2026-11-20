@@ -17,12 +17,13 @@ function isCheckInOpen(s, now = Date.now()) {
   return s.status === 'scheduled' && now >= Date.parse(s.starts_at) - minutes(config.attendance.opensBeforeStartMin) && now <= Date.parse(s.ends_at);
 }
 
+/** Sessions overlapping today in the school's time zone (so a class running past midnight still shows). */
 function todaysSessions(user, extraWhere = '', ...params) {
   const { start, end } = dayRangeUtc(localDate(new Date(), user.timezone), user.timezone);
   return all(
     `SELECT s.*, sec.name AS section_name, sec.course_code, sec.room, sec.kind, sec.teacher_id, u.name AS teacher_name
      FROM sessions s JOIN sections sec ON sec.id = s.section_id LEFT JOIN users u ON u.id = sec.teacher_id
-     WHERE s.tenant_id = ? AND s.starts_at >= ? AND s.starts_at < ? AND s.status != 'cancelled' ${extraWhere}
+     WHERE s.tenant_id = ? AND s.ends_at > ? AND s.starts_at < ? AND s.status != 'cancelled' ${extraWhere}
      ORDER BY s.starts_at`,
     user.tenantId, start, end, ...params,
   );
