@@ -218,6 +218,15 @@ describe('dashboards', () => {
     assert.deepEqual(p.children.map((x) => x.name), ['Ava Johnson']);
   });
 
+  test('a class that runs past midnight still shows on today’s schedule', async () => {
+    const { zonedToUtc, localDate } = await import('../../server/lib/time.js');
+    const midnight = zonedToUtc(localDate(new Date(), 'America/New_York'), '00:00', 'America/New_York').getTime();
+    const r = await c.post('/api/sessions', { sectionId: sec['Writing Center'].id, startsAt: new Date(midnight - 20 * 60000).toISOString(), endsAt: new Date(midnight + 20 * 60000).toISOString() }, { token: s.teacher3.token });
+    assert.equal(r.status, 201, JSON.stringify(r.body));
+    const today = (await c.get('/api/dashboard', { token: s.teacher3.token })).body.today;
+    assert.ok(today.some((x) => x.id === r.body.session.id));
+  });
+
   test('public config exposes demo accounts only in demo mode', async () => {
     const cfg = (await c.get('/api/config')).body;
     assert.equal(cfg.demoMode, true);
