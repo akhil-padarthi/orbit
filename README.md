@@ -167,10 +167,10 @@ npx playwright install chromium  # once
 npm run test:e2e                 # real-browser end-to-end tests
 ```
 
-**130 tests** across three layers. Each API and e2e file boots its own server on a random port with a fresh in-memory database.
+**131 tests** across three layers. Each API and e2e file boots its own server on a random port with a fresh in-memory database.
 
 - **Unit (17):** JWT (tampering, `alg:none`, expiry, issuer/audience), haversine and geofence edges, scrypt, DST-aware time-zone math, rate limiter, Link-header parsing, attendance-rate math.
-- **API (98):**
+- **API (99):**
   - auth: refresh rotation, reuse detection, logout, deactivation, rate limiting, security headers, path traversal
   - a permission matrix for all four roles, plus tenant isolation: cross-school ids → 404, forged tenant claims → 401, list endpoints never leak
   - scheduling conflicts (section/teacher/room) and recurring sessions across a DST change
